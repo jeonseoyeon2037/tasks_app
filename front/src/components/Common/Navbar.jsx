@@ -1,9 +1,13 @@
 import React from 'react'
 import { navMenus } from '../../utils/menuList';
-import { Link, Links } from 'react-router-dom';
+import { Link, Links, useLocation } from 'react-router-dom';
 import { FcGoogle } from "react-icons/fc";
 
-const Navbar = ({ activeIdx }) => {
+const Navbar = () => {
+
+  const path = useLocation();
+  const isActive = (to) => path.pathname === to;
+
   return (
     <nav className='bg-[#212121] w-1/5 h-full rounded-sm border border-gray-500 py-10 px-4 flex flex-col justify-between items-center'>
       <div className="logo-wrapper flex w-full items-center justify-center gap-8">
@@ -14,7 +18,7 @@ const Navbar = ({ activeIdx }) => {
       </div>
       <ul className='menus'>
         {navMenus.map((menu) => (
-          <li key={menu.idx} className={`rounded-sm mb-1 border hover:bg-gray-950 duration-300 ${activeIdx === menu.idx ? 'bg-gray-950' : 'border-gray-700'}`}>
+          <li key={menu.idx} className={`rounded-sm mb-1 border hover:bg-gray-950 duration-300 ${isActive(menu.to) ? 'bg-gray-950' : 'border-gray-700'}`}>
             <Link to={menu.to} className='flex gap-x-4 items-center py-2 px-10'>
               {menu.icon} {menu.label}
             </Link>

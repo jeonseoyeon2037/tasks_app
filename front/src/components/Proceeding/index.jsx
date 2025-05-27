@@ -5,7 +5,7 @@ import Navbar from '../Common/Navbar'
 const index = () => {
   return (
     <div className='page_section'>
-      <Navbar  activeIdx={2} />
+      <Navbar />
       <ItemPanel pageTitle="Incompleted Items" />
     </div>
   )
