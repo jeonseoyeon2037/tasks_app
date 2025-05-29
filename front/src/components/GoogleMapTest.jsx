@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
-import { GoogleMap, LoadScriptNext, Marker } from '@react-google-maps/api';
+import { LoadScriptNext, GoogleMap, Marker } from '@react-google-maps/api';
+
+// import locations from '../../constants/world-50m.v1.json';
 
 const containerStyle = {
     width: '100%',
@@ -23,7 +25,7 @@ const GoogleMapTest = () => {
     */
     
     return (
-        <LoadScriptNext googleMapApiKey={process.env.VITE_AUTH_CLIENT_ID}>
+        <LoadScriptNext googleMapApiKey={import.meta.env.VITE_AUTH_CLIENT_ID}>
             <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={14}>
                 {/* {locations.map(loc => (
                     <Marker
