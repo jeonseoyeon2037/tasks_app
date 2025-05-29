@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
-import { navMenus } from '../../utils/menuList';
+import { navMenus } from '../../utils/menuList.jsx';
 import { Link, Links, useLocation } from 'react-router-dom';
 import { FcGoogle } from "react-icons/fc";
 
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { useSelector, useDispatch } from 'react-redux';
-import { login, logout } from '../../redux/slice/authSlice';
+import { login, logout } from '../../redux/slices/authSlice';
 import { useCallback, useEffect } from 'react';
 
 const Navbar = () => {
@@ -19,7 +19,7 @@ const Navbar = () => {
   const dispatch = useDispatch();
   
   const {name} = user || {};
-  const [isAuth, setIsAuth] = useState(false);
+  const [isAuth, setIsAuth] = useState(!!name);
 
   // useCallback 사용 이유: 함수 재사용 방지, 성능 최적화
   const handleLoginSuccess = useCallback((credentialResponse) => {

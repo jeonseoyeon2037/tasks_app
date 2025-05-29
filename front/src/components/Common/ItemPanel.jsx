@@ -1,14 +1,15 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import Item from './Item';
 import { useSelector, useDispatch } from 'react-redux';
 import AddItem from './addItem';
 import PageTitle from './PageTitle';
-import { fetchGetItems } from '../../redux/slice/apiSlice';
+import { fetchGetItems } from '../../redux/slices/apiSlice';
 import { useEffect } from 'react';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import LoadingSkeleton from './LoadingSkeleton';
+import Modal from './Modal';
 
-const ItemPanel = ( {pageTitle} ) => {
+  const ItemPanel = ( {pageTitle, filteredCompleted, filteredImported} ) => {
   //Auth Data Variables
   const authData = useSelector((state) => state.auth.authData);
   const userKey = authData?.sub;
@@ -20,6 +21,10 @@ const ItemPanel = ( {pageTitle} ) => {
 
   // loading state
   const [loading, setLoading] = useState(false);
+
+  // modal state
+  const isOpen = useSelector((state) => state.modal.isOpen);
+  // console.log(isOpen);
 
   useEffect(() => {
     if(!userKey) return;
@@ -39,13 +44,43 @@ const ItemPanel = ( {pageTitle} ) => {
     fetchGetItemsData();
   }, [dispatch, userKey]);
 
-  // console.log(getTasksData);
+  // 1. home 메뉴를 선택할 때:
+  // - all메뉴를 선택하면 첫번째 filter 조건이 true이므로 모든 task를 반환
+  // - 1번에서 반환된 모든 tasks를 대상으로 두번째 filter 조건을 적용
+  // - filterImportant가 undefined이면 조건이 true 이므로 모든 task를 반환
+
+
+  // 2. Completed 메뉴를 선택할 때:
+  // - 첫번째 필터 조건에서 if문이 false이므로 return 문으로 이동하여 filterCompleted 조건을 판단
+  // - filterCompleted가 true이면 task.iscompleled가 true인 task만 반환
+
+
+  // 3. Proceeding 메뉴를 선택할 때:
+  // - 첫번째 필터 조건에서 if문이 false이므로 return 문으로 이동하여 filterCompleted 조건을 판단
+  // - filterCompleted가 false이면 task.iscompleled가 false인 task만 반환
+
+
+  // 4. Important 메뉴를 선택할 때:
+  // - 첫번째 필터 조건에서 if문이 true이므로 두번째 필터 조건으로 이동
+  // - 두번째 filter 조건에서 filterImportant가 없으면 true이므로 모든 task를 반환(home, Completed, Proceeding과 동일)
+  // - filterImportant가 true이면 task.isimportant가 true인 task만 반환
+
+  const filteredTasks = getTasksData
+    ?.filter((task) => {
+      if (filteredCompleted === 'all') return true;
+      return filteredCompleted ? task.iscompleted : !task.iscompleted;
+    })
+    .filter((task) => {
+      if (filteredImported === undefined) return true;
+      return filteredImported ? task.isimportant : !task.isimportant;
+    });
 
   return (
     <div className='panel bg-[#212121] w-4/5 h-full rounded-md border border-gray-500 py-5 px-4 overflow-y-auto'>
       
         {userKey ? (
           <div className='login-message w-full h-full'>
+            {isOpen && <Modal />}
             <PageTitle title={pageTitle} />
             <div className='flex flex-wrap'>
               {/* {
@@ -64,7 +99,7 @@ const ItemPanel = ( {pageTitle} ) => {
                     <LoadingSkeleton />
                   </SkeletonTheme>
                 ) : (
-                  getTasksData?.map((task, idx) => (
+                  filteredTasks?.map((task, idx) => (
                     <Item key={idx} task={task} />
                   ))
                 )}

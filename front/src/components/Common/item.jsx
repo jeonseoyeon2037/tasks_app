@@ -2,16 +2,19 @@ import {React, useState} from 'react'
 import { MdEditDocument } from "react-icons/md";
 import { FaTrash } from "react-icons/fa";
 import { useDispatch } from 'react-redux';
-import { fetchGetItems, fetchUpdateCompleted } from '../../redux/slice/apiSlice';
+import { fetchDeleteItem, fetchGetItems, fetchUpdateCompleted } from '../../redux/slices/apiSlice';
 import { toast } from 'react-toastify';
-const item = ({task}) => {
+import { openModal } from '../../redux/slices/modalSlice';
+import { deleteRequest } from '../../utils/requests';
 
-  debugger;
+const Item = ({task}) => {
+
   const {_id, title, description, date, iscompleted, isimportant, userid} = task;
   const dispatch = useDispatch();
   
 
   const textLengthOverCut = (text, length, lastTxt) => {
+    debugger;
     if (length === "" || length === null) {
       length = 20;
     }
@@ -60,15 +63,44 @@ const item = ({task}) => {
     
   }
 
+  const handleDetailOpenModal = () => {
+    dispatch(openModal({modalType: "details", task}));
+  }
+
+  const handleEditOpenModal = () => {
+    dispatch(openModal({modalType: 'update', task}));
+  }
+
+  const handleDeleteItem = async () => {
+    const confirm = window.confirm("정말 삭제하시겠습니까?");
+    if (!confirm) return;
+    
+    if (!_id) {
+      toast.error("잘못된 사용자 접근입니다.");
+      return;
+    }
+
+    try {
+      await dispatch(fetchDeleteItem(_id)).unwrap();
+      toast.success('삭제가 완료되었습니다.');
+      await dispatch(fetchGetItems(userid)).unwrap();
+    } catch(error) {
+      toast.error("삭제에 실패했습니다.");
+      console.log(error);
+    }
+  }
+
   return (
     <div className='item w-1/3 h-[25vh] p-[0.25rem]'>
       <div className='w-full h-full border border-gray-500 rounded-md flex py-3 px-4 flex-col justify-between bg-gray-950'>
         <div className="upper">
           <h2 className='text-xl font-normal mb-3 relative pb-2 flex justify-between border-b'>
             <span className='bottom-0'>{title}</span>
-            <span className='text-sm py-1 px-3 border border-gray-500 rounded-sm hover:bg-gray-700 cursor-pointer'>자세히</span>
+            <span className='text-sm py-1 px-3 border border-gray-500 rounded-sm hover:bg-gray-700 cursor-pointer'
+              onClick={handleDetailOpenModal} >자세히
+            </span>
           </h2>
-          <p style={{ whiteSpace: 'pre-wrap'}}>{textLengthOverCut(description, 10)}</p>
+          <p style={{ whiteSpace: 'pre-wrap'}}>{textLengthOverCut(description, 10, "...")}</p>
         </div>
         <div className="lower">
           <p className='text-sm mb-1'>{date}</p>
@@ -89,9 +121,9 @@ const item = ({task}) => {
             </div>
             <div className="item-footer-right flex gap-2">
               <button className='edit-btn'>
-                <MdEditDocument className='w-5 h-5' />
+                <MdEditDocument className='w-5 h-5' onClick={handleEditOpenModal}/>
               </button>
-              <button className='delete-btn' >
+              <button className='delete-btn' onClick={handleDeleteItem}>
                 <FaTrash />
               </button>
             </div>
@@ -102,4 +134,4 @@ const item = ({task}) => {
   )
 }
 
-export default item
+export default Item
